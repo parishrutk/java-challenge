@@ -12,7 +12,7 @@ import java.util.UUID;
 public class RequestCorrelationInterceptor extends HandlerInterceptorAdapter {
 
     private static final String CORRELATION_HEADER = "X-Correlation-Id";
-    private static final String CORRELATION_ID_LOG_VAR_NAME = "CORRELATION_ID";
+    private static final String CORRELATION_ID_LOG_VAR_NAME = "CorrelationId";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -33,7 +33,7 @@ public class RequestCorrelationInterceptor extends HandlerInterceptorAdapter {
 
     private String getCorrelationIDFromRequestHeader(HttpServletRequest request) {
 
-        String CORRELATION_ID = request.getHeader(CORRELATION_HEADER);
+        final String CORRELATION_ID = request.getHeader(CORRELATION_HEADER);
         if (Objects.nonNull(CORRELATION_ID)) {
             return CORRELATION_ID;
         } else {

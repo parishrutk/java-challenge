@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
+    private static final long serialVersionUID = -3063406460430491794L;
+
     private String userName;
     private String password;
     private Boolean isActive;

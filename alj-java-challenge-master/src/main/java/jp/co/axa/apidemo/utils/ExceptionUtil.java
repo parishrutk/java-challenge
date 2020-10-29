@@ -1,6 +1,6 @@
 package jp.co.axa.apidemo.utils;
 
-import jp.co.axa.apidemo.excpetions.CustomApiException;
+import jp.co.axa.apidemo.excpetions.ApiRuntimeException;
 import org.springframework.http.HttpStatus;
 
 public class ExceptionUtil {
@@ -9,7 +9,15 @@ public class ExceptionUtil {
 
     }
 
-    public static CustomApiException prepareExceptionDetails(String errorMessage, HttpStatus httpStatus, Throwable t) {
-        return new CustomApiException(errorMessage, httpStatus, t);
+    public static ApiRuntimeException prepareExceptionDetails(String errorMessage, HttpStatus httpStatus, Throwable throwable) {
+        return new ApiRuntimeException(errorMessage, httpStatus, throwable);
+    }
+
+    public static ApiRuntimeException prepareExceptionDetails(String errorMessage, HttpStatus httpStatus, String detailedErrorMessage) {
+        return new ApiRuntimeException(errorMessage, httpStatus, detailedErrorMessage);
+    }
+
+    public static ApiRuntimeException prepareExceptionDetails(String errorMessage, HttpStatus httpStatus) {
+        return new ApiRuntimeException(errorMessage, httpStatus);
     }
 }

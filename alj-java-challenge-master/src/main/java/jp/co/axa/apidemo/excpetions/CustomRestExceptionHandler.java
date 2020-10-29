@@ -1,16 +1,24 @@
 package jp.co.axa.apidemo.excpetions;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.persistence.EntityNotFoundException;
 
+@ControllerAdvice
 public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
+
+    final Logger logger = LoggerFactory.getLogger(CustomRestExceptionHandler.class);
 
     //define all the different types of exception your employee service can throw. Then accordingly add the custom handling code.
 
@@ -18,24 +26,39 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     //handleDuplicateRecordException
     //handleInvalidInputException
     //handleValidationErrorsForEmployee.
+    //ConstraintViolationException
+    //MethodArgumentNotValidException
 
     @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String error = "Malformed JSON request";
-        return buildResponseEntity(new CustomApiException(error, status, ex));
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest webRequest) {
+        logger.debug("Triggering exception handler for HttpMessageNotReadableException type.");
+        String error = "Malformed JSON request.";
+        return buildResponseEntity(new ApiRuntimeException(error, HttpStatus.BAD_REQUEST, ex.getLocalizedMessage()), webRequest);
     }
 
-    private ResponseEntity<Object> buildResponseEntity(CustomApiException customApiException) {
-        return new ResponseEntity<>(customApiException, customApiException.getErrorStatus());
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest webRequest) {
+        logger.debug("Triggering exception handler for MethodArgumentNotValidException type.");
+        String error = "Method arguments are invalid.";
+        return buildResponseEntity(new ApiRuntimeException(error, HttpStatus.BAD_REQUEST, ex.getLocalizedMessage()), webRequest);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException exception) {
-        return buildResponseEntity(new CustomApiException(exception.getMessage(), HttpStatus.NOT_FOUND, exception));
+    @ExceptionHandler(value = {EntityNotFoundException.class})
+    protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException exception, WebRequest webRequest) {
+        logger.debug("Triggering exception handler for EntityNotFoundException type.");
+        return buildResponseEntity(new ApiRuntimeException(exception.getMessage(), HttpStatus.NOT_FOUND), webRequest);
     }
 
-    @ExceptionHandler(CustomApiException.class)
-    protected ResponseEntity<Object> handleEntityNotFoundException(CustomApiException exception) {
-        return buildResponseEntity(exception);
+    @ExceptionHandler(value = {ApiRuntimeException.class})
+    protected ResponseEntity<Object> handleApiRuntimeException(ApiRuntimeException exception, WebRequest webRequest) {
+        logger.debug("Triggering exception handler for ApiRuntimeException type.");
+        return buildResponseEntity(exception, webRequest);
+    }
+
+    private ResponseEntity<Object> buildResponseEntity(ApiRuntimeException apiRuntimeException, WebRequest webRequest) {
+        ApiErrorResponse response = new ApiErrorResponse(apiRuntimeException.getErrorMessage(), apiRuntimeException.getErrorStatus().value(),
+                apiRuntimeException.getTimeStamp(), apiRuntimeException.getDetailedErrorMessage(),
+                ((ServletWebRequest) webRequest).getRequest().getRequestURI());
+        return new ResponseEntity<>(response, apiRuntimeException.getErrorStatus());
     }
 }

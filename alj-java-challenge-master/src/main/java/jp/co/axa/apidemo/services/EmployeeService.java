@@ -1,13 +1,12 @@
 package jp.co.axa.apidemo.services;
 
 import jp.co.axa.apidemo.entities.Employee;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 public interface EmployeeService {
 
-    List<Employee> retrieveEmployees();
+    List<Employee> listAllEmployees();
 
     Employee getEmployee(Long employeeId);
 
@@ -15,5 +14,5 @@ public interface EmployeeService {
 
     void deleteEmployee(Long employeeId);
 
-    void updateEmployee(Employee employee);
+    void updateEmployee(Long employeeId, Employee employee);
 }

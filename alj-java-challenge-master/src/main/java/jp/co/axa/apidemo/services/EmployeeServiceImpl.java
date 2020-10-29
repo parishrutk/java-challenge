@@ -1,6 +1,7 @@
 package jp.co.axa.apidemo.services;
 
 import jp.co.axa.apidemo.entities.Employee;
+import jp.co.axa.apidemo.excpetions.ApiRuntimeException;
 import jp.co.axa.apidemo.repositories.EmployeeRepository;
 import jp.co.axa.apidemo.utils.ExceptionUtil;
 import org.slf4j.Logger;
@@ -22,51 +23,90 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private Logger logger = LoggerFactory.getLogger(EmployeeServiceImpl.class);
 
-    public List<Employee> retrieveEmployees() {
-        List<Employee> employees;
+    //TODO: Make this cache conditional
+    //@Cacheable("employee")
+    public List<Employee> listAllEmployees() {
+        List<Employee> employees = null;
         try {
             employees = employeeRepository.findAll();
             if (Objects.isNull(employees)) {
                 logger.warn("No records found for Employees.");
             }
         } catch (Throwable t) {
-            throw ExceptionUtil.prepareExceptionDetails("Something went wrong !", HttpStatus.INTERNAL_SERVER_ERROR, t);
+            logger.error("Error occurred while fetching Employee records.");
+            t.printStackTrace();
+            ExceptionUtil.prepareExceptionDetails("Something went wrong!", HttpStatus.INTERNAL_SERVER_ERROR, t.getLocalizedMessage());
         }
         return employees;
     }
 
+    //@Cacheable(cacheNames = "employee", key = "#employeeId")
     public Employee getEmployee(Long employeeId) {
-        Optional<Employee> optEmp = employeeRepository.findById(employeeId);
-        Employee employee = optEmp.orElseThrow(() ->
-                new EntityNotFoundException("Given employee Id [" + employeeId + "] is invalid or record does not exist"));
+        Employee employee = null;
+        try {
+            employee = findFirst(employeeId, false);
+        } catch (EntityNotFoundException entityNotFoundException) {
+            throw entityNotFoundException;
+        } catch (Throwable t) {
+            logger.error("Unable to fetch record for Employee [{}]", employeeId);
+            t.printStackTrace();
+            ExceptionUtil.prepareExceptionDetails("Get operation failed!", HttpStatus.INTERNAL_SERVER_ERROR, t.getLocalizedMessage());
+        }
         return employee;
     }
 
     public void saveEmployee(Employee employee) {
         try {
+            if (employee != null && findFirst(employee.getId(), true) != null) {
+                logger.error("Employee record already exists for id [{}]", employee.getId());
+                throw ExceptionUtil.prepareExceptionDetails("Record already exists in the System.", HttpStatus.BAD_REQUEST);
+            }
             employeeRepository.save(employee);
+        } catch (ApiRuntimeException apiRuntimeException) {
+            throw apiRuntimeException;
         } catch (Throwable t) {
             logger.error("Unable to add a new record for Employee [{}]", employee);
-            throw ExceptionUtil.prepareExceptionDetails("Something went wrong !", HttpStatus.INTERNAL_SERVER_ERROR, t);
-        }
-
-    }
-
-    public void deleteEmployee(Long employeeId) {
-        try {
-            employeeRepository.deleteById(employeeId);
-        } catch (Throwable t) {
-            logger.error("Unable to delete the record for Employee [{}]", employeeId);
-            throw ExceptionUtil.prepareExceptionDetails("Something went wrong !", HttpStatus.INTERNAL_SERVER_ERROR, t);
+            t.printStackTrace();
+            ExceptionUtil.prepareExceptionDetails("Save operation failed!", HttpStatus.INTERNAL_SERVER_ERROR, t.getLocalizedMessage());
         }
     }
 
-    public void updateEmployee(Employee employee) {
+    //@CachePut(cacheNames = "employee", key = "#employee.id")
+    public void updateEmployee(Long employeeId, Employee employee) {
         try {
-            employeeRepository.save(employee);
+            if (!Objects.equals(employeeId, employee.getId())) {
+                throw ExceptionUtil.prepareExceptionDetails("Invalid Payload provided, please check if EmployeeID is correct or not.", HttpStatus.BAD_REQUEST);
+            }
+            if (findFirst(employeeId, true) != null)
+                employeeRepository.save(employee);
+        } catch (ApiRuntimeException apiRuntimeException) {
+            throw apiRuntimeException;
         } catch (Throwable t) {
             logger.error("Unable to update the record for Employee [{}] with employee details [{}]", employee.getId(), employee);
-            throw ExceptionUtil.prepareExceptionDetails("Something went wrong !", HttpStatus.INTERNAL_SERVER_ERROR, t);
+            t.printStackTrace();
+            ExceptionUtil.prepareExceptionDetails("Update operation failed!", HttpStatus.INTERNAL_SERVER_ERROR, t.getLocalizedMessage());
+        }
+    }
+
+    // @CacheEvict(cacheNames = "employee", key = "#employeeId")
+    public void deleteEmployee(Long employeeId) {
+        try {
+            if (findFirst(employeeId, false) != null)
+                employeeRepository.deleteById(employeeId);
+        } catch (Throwable t) {
+            logger.error("Unable to delete the record for Employee [{}]", employeeId);
+            ExceptionUtil.prepareExceptionDetails("Delete operation failed!", HttpStatus.INTERNAL_SERVER_ERROR, t.getLocalizedMessage());
+            t.printStackTrace();
+        }
+    }
+
+    private Employee findFirst(Long employeeId, boolean isSaveOperation) {
+        Optional<Employee> optEmp = employeeRepository.findById(employeeId);
+        if (!isSaveOperation) {
+            return optEmp.orElseThrow(() ->
+                    new EntityNotFoundException("Given employee Id [" + employeeId + "] is invalid or record does not exist"));
+        } else {
+            return optEmp.orElse(null);
         }
     }
 }
