@@ -5,6 +5,9 @@ import org.springframework.http.HttpStatus;
 
 public class ExceptionUtil {
 
+    /**
+     * Util class to create instances of ApiRuntimeException depending upon the parameters provided during construction of it.
+     */
     private ExceptionUtil() {
         // don't allow to create any object.
     }

@@ -22,10 +22,10 @@ public class Swagger2UIConfiguration implements WebMvcConfigurer {
     @Bean
     public Docket swagger2Api() {
         //Register the controllers to swagger
-        //Also it is configuring the Swagger Docket
+        //In order to customize the Swagger Documentation we need to create a Docket object which then loads all the User defined configuration.
         return new Docket(DocumentationType.SWAGGER_2).select()
                 // .apis(RequestHandlerSelectors.any())
-                .apis(Predicates.not(RequestHandlerSelectors.basePackage("org.springframework.boot")))
+                .apis(Predicates.not(RequestHandlerSelectors.basePackage("jp.co.axa.apidemo")))
                 .paths(PathSelectors.any())
                 .build().apiInfo(new ApiInfo("Employee Management Service", "This Service will mainly be maintaining data related to Employees.",
                 "v1.0", "Copyright to Axa Life Japan",

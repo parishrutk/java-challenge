@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * This class is responsible for Creating a unique correlationId and put it in each request in order to trace request flow.
+ */
 public class RequestCorrelationInterceptor extends HandlerInterceptorAdapter {
 
     private static final String CORRELATION_HEADER = "X-Correlation-Id";
@@ -25,7 +28,7 @@ public class RequestCorrelationInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         final String CORRELATION_ID = getCorrelationIDFromRequestHeader(request);
-        MDC.put(CORRELATION_ID_LOG_VAR_NAME, CORRELATION_ID);
+        MDC.put(CORRELATION_ID_LOG_VAR_NAME, CORRELATION_ID); //MDC will contain the unique correlation id and will inject it in each request.
         return true;
     }
 
@@ -52,7 +55,7 @@ public class RequestCorrelationInterceptor extends HandlerInterceptorAdapter {
      */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        MDC.remove(CORRELATION_ID_LOG_VAR_NAME);
+        MDC.remove(CORRELATION_ID_LOG_VAR_NAME); //after the request has been completed remove the correlation id allocation.
     }
 
     /**
