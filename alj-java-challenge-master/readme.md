@@ -48,7 +48,7 @@ Application (with the embedded H2 database) is ready to be used ! You can access
 ### 1.  Rest Controller for Employee Service.
 ### 2.  Employee service class and its implementation.
 ### 3.  Spring security to protect rest endpoints.
-### 4.  Caching layer for enabling caching for this Service.
+### 4.  Caching layer for enabling caching for this Service using Hazelcast configuration.
 ### 5.  Swagger configuration for API documentation.
 ### 6.  WebMVC configuration and Interceptors to enable CorrelationId injection in each request.
 ### 7.  Custom exception handlers and API responses and Util classes.
