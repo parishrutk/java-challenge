@@ -69,4 +69,5 @@ Application (with the embedded H2 database) is ready to be used ! You can access
 ### 6. UI integration.
 ### 7. Spring config server.
 ### 8. Containerization(Docker/Kubern8).
+### 9. SonarQube/SonarLint integration for code coverage/code optimization.
 
