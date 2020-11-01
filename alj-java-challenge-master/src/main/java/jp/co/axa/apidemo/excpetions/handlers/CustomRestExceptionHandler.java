@@ -1,5 +1,7 @@
-package jp.co.axa.apidemo.excpetions;
+package jp.co.axa.apidemo.excpetions.handlers;
 
+import jp.co.axa.apidemo.excpetions.ApiErrorResponse;
+import jp.co.axa.apidemo.excpetions.ApiRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -22,25 +24,18 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 
     //define all the different types of exception your employee service can throw. Then accordingly add the custom handling code.
 
-    //handleEmployeeNotFoundException
-    //handleDuplicateRecordException
-    //handleInvalidInputException
-    //handleValidationErrorsForEmployee.
-    //ConstraintViolationException
-    //MethodArgumentNotValidException
-
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest webRequest) {
         logger.debug("Triggering exception handler for HttpMessageNotReadableException type.");
-        String error = "Malformed JSON request.";
+        String error = "Malformed JSON request. Please check your request body.";
         return buildResponseEntity(new ApiRuntimeException(error, HttpStatus.BAD_REQUEST, ex.getLocalizedMessage()), webRequest);
     }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest webRequest) {
         logger.debug("Triggering exception handler for MethodArgumentNotValidException type.");
-        String error = "Method arguments are invalid.";
-        return buildResponseEntity(new ApiRuntimeException(error, HttpStatus.BAD_REQUEST, ex.getLocalizedMessage()), webRequest);
+        String error = "Validation failed for given Payload. Please check your request input.";
+        return buildResponseEntity(new ApiRuntimeException(error, HttpStatus.BAD_REQUEST, ex.getBindingResult().toString()), webRequest);
     }
 
     @ExceptionHandler(value = {EntityNotFoundException.class})

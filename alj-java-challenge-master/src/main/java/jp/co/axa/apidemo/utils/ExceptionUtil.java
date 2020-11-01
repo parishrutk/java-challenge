@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 public class ExceptionUtil {
 
     private ExceptionUtil() {
-
+        // don't allow to create any object.
     }
 
     public static ApiRuntimeException prepareExceptionDetails(String errorMessage, HttpStatus httpStatus, Throwable throwable) {

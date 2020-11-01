@@ -17,7 +17,7 @@
         <file>${LOGS}/employee_service.log</file>
         <encoder
                 class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
+            <pattern>[%d{yyyy-MM-dd'T'HH:mm:ss.sss'Z'}] [%C] [%t] [%green(%X{CorrelationId})] [%L] [%-5p] %m%n</pattern>
         </encoder>
 
         <rollingPolicy

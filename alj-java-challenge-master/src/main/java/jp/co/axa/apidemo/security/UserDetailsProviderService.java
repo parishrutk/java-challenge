@@ -25,4 +25,13 @@ public class UserDetailsProviderService implements UserDetailsService {
         return myUser.map(CustomUserDetails::new).get();
     }
 
+    /*private Collection<GrantedAuthority> getGrantedAuthority(UserInfo user) {
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        if (user.getName().equalsIgnoreCase("admin")) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        return authorities;
+    }*/
+
 }

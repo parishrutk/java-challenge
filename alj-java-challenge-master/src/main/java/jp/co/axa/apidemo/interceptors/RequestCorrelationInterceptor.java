@@ -14,6 +14,14 @@ public class RequestCorrelationInterceptor extends HandlerInterceptorAdapter {
     private static final String CORRELATION_HEADER = "X-Correlation-Id";
     private static final String CORRELATION_ID_LOG_VAR_NAME = "CorrelationId";
 
+    /**
+     *
+     * @param request
+     * @param response
+     * @param handler
+     * @return
+     * @throws Exception
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         final String CORRELATION_ID = getCorrelationIDFromRequestHeader(request);
@@ -21,16 +29,37 @@ public class RequestCorrelationInterceptor extends HandlerInterceptorAdapter {
         return true;
     }
 
+    /**
+     *
+     * @param request
+     * @param response
+     * @param handler
+     * @param modelAndView
+     * @throws Exception
+     */
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         super.postHandle(request, response, handler, modelAndView);
     }
 
+    /**
+     *
+     * @param request
+     * @param response
+     * @param handler
+     * @param ex
+     * @throws Exception
+     */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         MDC.remove(CORRELATION_ID_LOG_VAR_NAME);
     }
 
+    /**
+     *
+     * @param request - takes in a HttpServletRequest to read the custom header parameter.
+     * @return String - a Correlation Id representation using UUID.
+     */
     private String getCorrelationIDFromRequestHeader(HttpServletRequest request) {
 
         final String CORRELATION_ID = request.getHeader(CORRELATION_HEADER);
