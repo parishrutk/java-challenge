@@ -42,3 +42,31 @@ Application (with the embedded H2 database) is ready to be used ! You can access
 - Appropriate usage of packages
 - Is the application running as expected
 - No performance issues
+
+# *Features Included in Employee CRUD Service*
+
+### 1.  Rest Controller for Employee Service.
+### 2.  Employee service class and its implementation.
+### 3.  Spring security to protect rest endpoints.
+### 4.  Caching layer for enabling caching for this Service.
+### 5.  Swagger configuration for API documentation.
+### 6.  WebMVC configuration and Interceptors to enable CorrelationId injection in each request.
+### 7.  Custom exception handlers and API responses and Util classes.
+### 8.  Actuator framework support(out of the box features enabled) for Application health check.
+### 9.  Logging using Sl4j framework.
+### 10. JUnits support for implementation and business logic.
+### 11. Profile based configuration file.
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+
+# _Future enhancement/Scope/TODOs_
+### 1. Actuator framework customization.
+### 2. Monitoring framework.
+### 3. Spring cloud support.
+### 4. CI/CD readiness.
+### 5. Integration testing.
+### 6. UI integration.
+### 7. Spring config server.
+### 8. Containerization(Docker/Kubern8).
+
